@@ -1,0 +1,24 @@
+name: CombatLogger
+version:  '${project.version}'
+author: TubYoub
+main: de.tubyoub.combatlogger.CombatLoggerPlugin
+
+commands:
+  combatlogger:
+    description: Main command for CombatLogger plugin
+    usage: /combatlogger <start|stop|list|help> [player]
+    aliases: [cl]
+
+permissions:
+  combatlogger.start:
+    description: Allows players to start combat for a specific player
+    default: op
+  combatlogger.stop:
+    description: Allows players to stop combat for a specific player
+    default: op
+  combatlogger.list:
+    description: Allows players to list all players currently in combat
+    default: op
+  combatlogger.settimer:
+    description: Allows players to set the combat timer
+    default: op
