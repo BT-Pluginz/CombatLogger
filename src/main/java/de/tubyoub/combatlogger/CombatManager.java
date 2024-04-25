@@ -1,3 +1,4 @@
+//TODO: Cleanup
 package de.tubyoub.combatlogger;
 
 import org.bukkit.Bukkit;
@@ -41,10 +42,6 @@ public class CombatManager {
         if (combatTimers.containsKey(playerId)) {
             long logoutTime = System.currentTimeMillis();
             long lastCombatTime = combatTimers.get(playerId);
-            if (combatTimers.get(playerId) != null) {
-                player.sendMessage("You are no longer in combat.");
-                removeBossBar(player);
-            }
             if (logoutTime - lastCombatTime <= combatTimeoutInSeconds * 1000) {
                 long remainingTime = (lastCombatTime + combatTimeoutInSeconds * 1000) - logoutTime;
                 if (remainingTime > 0) {
@@ -54,7 +51,7 @@ public class CombatManager {
                             target.setHealth(0);
                             target.sendMessage("You died because you logged out during combat.");
                         }
-                    }, remainingTime / 50);
+                    }, 0);
                 }
             }
 
@@ -68,13 +65,20 @@ public class CombatManager {
 
     public void handlePlayerDeath(Player player) {
         combatTimers.remove(player.getUniqueId());
-
         combatStatus.remove(player.getUniqueId());
+        this.removeBossBar(player);
+        player.sendMessage("You are no longer in combat because you lost");
     }
-
+    public void handleFightWon(Player player){
+        combatTimers.remove(player.getUniqueId());
+        combatStatus.remove(player.getUniqueId());
+        this.removeBossBar(player);
+        player.sendMessage("You are no longer in combat because you won");
+    }
     public void startCombatTimer(Player player) {
         UUID playerId = player.getUniqueId();
         combatTimers.put(playerId, System.currentTimeMillis());
+        plugin.getLogger().info(String.valueOf(System.currentTimeMillis()));
         createBossBar(player);
 }
 
@@ -113,10 +117,11 @@ public class CombatManager {
         long currentTime = System.currentTimeMillis();
         for (UUID playerId : combatTimers.keySet()) {
             long lastCombatTime = combatTimers.get(playerId);
-            if (combatTimers.get(playerId) != null){
+            if (combatTimers.get(playerId) == null){
                 Player player = plugin.getServer().getPlayer(playerId);
                 player.sendMessage("You are no longer in combat.");
                 removeBossBar(player);
+                plugin.getLogger().warning("First");
             }
             if (currentTime - lastCombatTime >= combatTimeoutInSeconds * 1000) {
                 combatTimers.remove(playerId);
@@ -126,6 +131,7 @@ public class CombatManager {
                     player.sendMessage("You are no longer in combat.");
                     removeBossBar(player);
                 }
+
             } else {
                 Player player = plugin.getServer().getPlayer(playerId);
                 if (player != null) {

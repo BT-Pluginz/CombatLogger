@@ -25,8 +25,10 @@ public class CombatListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        combatManager.handlePlayerDeath(player);
+        Player victim = event.getEntity();
+        Player murder = event.getEntity().getKiller();
+        combatManager.handlePlayerDeath(victim);
+        combatManager.handleFightWon(murder);
     }
 
     @EventHandler
