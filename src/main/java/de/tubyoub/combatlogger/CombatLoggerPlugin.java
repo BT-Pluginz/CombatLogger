@@ -13,14 +13,19 @@ public class CombatLoggerPlugin extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
 
-        int combatTimeoutInSeconds = getConfig().getInt("combatTimeoutInSeconds");
+        int combatTimeoutInSeconds = getConfig().getInt("combatTimeoutInSeconds", 30);
 
-        CombatManager combatManager = new CombatManager(this, combatTimeoutInSeconds);
+        this.combatManager = new CombatManager(this, combatTimeoutInSeconds);
 
-        getServer().getPluginManager().registerEvents(new CombatListener(this, combatTimeoutInSeconds), this);
+        getServer().getPluginManager().registerEvents(new CombatListener(this), this);
 
         getCommand("combatlogger").setExecutor(new CombatLoggerCommand(combatManager,this));
     }
+
+    public CombatManager getCombatManager() {
+        return combatManager;
+    }
+
     @Override
     public void onDisable() {
     }

@@ -13,8 +13,8 @@ public class CombatListener implements Listener {
 
     private CombatManager combatManager;
 
-    public CombatListener(CombatLoggerPlugin plugin, int combatTimeoutInSeconds) {
-        this.combatManager = new CombatManager(plugin, combatTimeoutInSeconds);
+    public CombatListener(CombatLoggerPlugin plugin) {
+        this.combatManager = plugin.getCombatManager();
     }
 
     @EventHandler

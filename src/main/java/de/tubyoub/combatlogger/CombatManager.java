@@ -1,8 +1,8 @@
-//TODO: Cleanup
 package de.tubyoub.combatlogger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -149,7 +149,7 @@ public class CombatManager {
 
     private void createBossBar(Player player) {
         UUID playerId = player.getUniqueId();
-        BossBar bossBar = Bukkit.createBossBar("Combat Timer", BarColor.RED, BarStyle.SOLID);
+        BossBar bossBar = Bukkit.createBossBar("Combat Timer", BarColor.RED, BarStyle.SEGMENTED_20);
         bossBar.setProgress(1.0);
         bossBar.addPlayer(player);
         bossBars.put(playerId, bossBar);
