@@ -1,1 +1,9 @@
+################################
+#          CombatLogger        #
+#         by BT Pluginz        #
+################################
+fileversion: 1
+
+# How Long Players should be in Combat (in seconds)
+# default: 30
 combatTimeout: 30
