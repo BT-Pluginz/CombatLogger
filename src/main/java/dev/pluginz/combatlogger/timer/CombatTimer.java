@@ -43,7 +43,6 @@ public class CombatTimer extends Timer{
         this.combatManager = plugin.getCombatManager();
         this.player = player;
         this.sendActionBar();
-        this.run();
     }
     @Override
     public void run(){
