@@ -4,6 +4,10 @@
 ################################
 fileversion: 1
 
+
+# If the Plugin should check for new Versions
+# default: true
+checkVersion: true
 # How Long Players should be in Combat (in seconds)
 # default: 30
 combatTimeout: 30
