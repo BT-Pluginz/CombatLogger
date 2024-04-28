@@ -94,53 +94,35 @@ public class CombatManager {
     }
     public void removePlayerFromPlayersLeftInCombat(Player player){
         String playerA = player.getUniqueId().toString();
-            for(playersLeftInCombat.toFirst(); playersLeftInCombat.hasAccess(); playersLeftInCombat.next()) {
-                String playerB = playersLeftInCombat.getContent().getUniqueId().toString();
-                if (playerA.equals(playerB)) {
-                    playersLeftInCombat.remove();
-                    System.out.println("Player removed from playersLeftInCombat list");
-                }
-                System.out.println("Player to remove: " + playerA);
-                System.out.println("Selected Player: " + playerB);
-            }
-        System.out.println("Test");
+        for(playersLeftInCombat.toFirst(); playersLeftInCombat.hasAccess(); playersLeftInCombat.next()) {
+            String playerB = playersLeftInCombat.getContent().getUniqueId().toString();
+            if (playerA.equals(playerB))
+                playersLeftInCombat.remove();
+        }
     }
     public List<Player> getPlayersLeftInCombat(){
         return playersLeftInCombat;
     }
     public boolean didPlayerLeaveInCombat(Player player){
         for (playersLeftInCombat.toFirst(); playersLeftInCombat.hasAccess(); playersLeftInCombat.next()) {
-            System.out.println(player.getUniqueId());
-            System.out.println(playersLeftInCombat.getContent().getUniqueId());
-            System.out.println(playersLeftInCombat.getContent().getUniqueId());
             String playerA = player.getUniqueId().toString();
             String playerB = playersLeftInCombat.getContent().getUniqueId().toString();
-            if (playerA.equals(playerB)) {
+            if (playerA.equals(playerB))
                 return true;
-            }else{
-                System.out.println(player.getUniqueId() + " == " + playersLeftInCombat.getContent().getUniqueId());
-            }
         }
         return false;
     }
     public void handlePlayerQuit(Player player){
         if(playerIsInCombat(player)){
+            player.setHealth(0);
             removePlayerFromCombat(player);
             addPlayerToPlayersLeftInCombat(player);
         }
     }
     public void judgePlayerQuit(Player player) {
         if (didPlayerLeaveInCombat(player)) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "You left during combat"));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "You were killed because you left while in combat"));
             removePlayerFromPlayersLeftInCombat(player);
-            System.out.println("Is True");
-            printList(getPlayersLeftInCombat());
-        }
-    }
-    public void printList(List list){
-        for(list.toFirst(); list.hasAccess(); list.next()){
-            System.out.println(list.getContent());
-            System.out.println("Is in the list");
         }
     }
 }
