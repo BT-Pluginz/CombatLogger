@@ -39,6 +39,7 @@ public class AllyManager {
     private final CombatLoggerPlugin plugin;
     private final File allyFile;
     private final Map<UUID, Set<UUID>> allyMap = new HashMap<>();
+    private final Map<UUID, Map<UUID, Long>> allyRequests = new HashMap<>();
 
     public AllyManager(CombatLoggerPlugin plugin, File allyFile) {
         this.plugin = plugin;
@@ -47,7 +48,7 @@ public class AllyManager {
     }
 
     public void sendAllyRequest(Player sender, Player target) {
-        TextComponent message = new TextComponent("Player " + sender.getName() + " wants to add you as an ally. ");
+        TextComponent message = new TextComponent(plugin.getPluginPrefix() + sender.getName() + " wants to add you as an ally. ");
         TextComponent accept = new TextComponent("[Accept]");
         accept.setColor(ChatColor.GREEN);
         accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cl ally accept " + sender.getName()));
@@ -58,11 +59,20 @@ public class AllyManager {
         message.addExtra(new TextComponent(" "));
         message.addExtra(deny);
         target.spigot().sendMessage(message);
+
+        allyRequests.computeIfAbsent(target.getUniqueId(), k -> new HashMap<>()).put(sender.getUniqueId(), System.currentTimeMillis());
     }
 
     public void addAlly(Player player1, Player player2) {
         allyMap.computeIfAbsent(player1.getUniqueId(), k -> new HashSet<>()).add(player2.getUniqueId());
         allyMap.computeIfAbsent(player2.getUniqueId(), k -> new HashSet<>()).add(player1.getUniqueId());
+
+        // Remove the request from the allyRequests map
+        Map<UUID,Long> requests = allyRequests.get(player2.getUniqueId());
+        if (requests != null) {
+            requests.remove(player1.getUniqueId());
+        }
+
         this.save();
     }
 
@@ -89,6 +99,23 @@ public class AllyManager {
         Set<UUID> allies = allyMap.get(player1.getUniqueId());
         return allies != null && allies.contains(player2.getUniqueId());
     }
+    public boolean hasAllyRequest(Player sender, Player target) {
+        Map<UUID, Long> requests = allyRequests.get(target.getUniqueId());
+        if (requests != null) {
+            Long timestamp = requests.get(sender.getUniqueId());
+            if (timestamp != null) {
+                // Check if the request is still valid (less than 30 seconds old)
+                if (System.currentTimeMillis() - timestamp <= 30 * 1000) {
+                    return true;
+                } else {
+                    // Remove the expired request
+                    requests.remove(sender.getUniqueId());
+                }
+            }
+        }
+        return false;
+    }
+
 
     private void load() {
         try (BufferedReader reader = new BufferedReader(new FileReader(allyFile))) {
@@ -116,5 +143,10 @@ public class AllyManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public void reloadAllys() {
+        allyMap.clear();
+        allyRequests.clear();
+        load();
     }
 }

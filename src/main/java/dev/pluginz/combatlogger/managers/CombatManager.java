@@ -28,30 +28,25 @@ import dev.pluginz.combatlogger.timer.CombatTimer;
 import dev.pluginz.combatlogger.utils.List;
 
 import dev.pluginz.combatlogger.CombatLoggerPlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class CombatManager {
-    private List <Player> playersInCombat;
+    private List <Player> playersInCombat, playersLeftInCombat;
     private HashMap<Player, CombatTimer> playerCombatTimerHashMap;
-    private int combatTimeoutInSeconds;
     private CombatLoggerPlugin plugin;
     private final ConfigManager configManager;
 
     public CombatManager(CombatLoggerPlugin plugin) {
         this.playerCombatTimerHashMap = new HashMap<>();
         this.playersInCombat = new List<>();
+        this.playersLeftInCombat = new List<>();
         this.plugin = plugin;
         this.configManager = plugin.getConfigManager();
+
     }
     public List <Player> getPlayersInCombat(){
         return playersInCombat;
@@ -66,10 +61,12 @@ public class CombatManager {
         }
     }
     public void removePlayerFromCombat(Player player){
-        for(playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next())
-            if(player == playersInCombat.getContent())
+        String playerA = player.getUniqueId().toString();
+        for(playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next()) {
+            String playerB = playersInCombat.getContent().getUniqueId().toString();
+            if (playerA.equals(playerB))
                 playersInCombat.remove();
-        playerCombatTimerHashMap.remove(player);
+        }
     }
     public boolean playerIsInCombat(Player player){
         for(playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next())
@@ -81,5 +78,41 @@ public class CombatManager {
         if(playerIsInCombat(player))
             return playerCombatTimerHashMap.get(player).getTimeInSeconds();
         return -1;
+    }
+    public void addPlayerToPlayersLeftInCombat(Player player){
+        playersLeftInCombat.append(player);
+    }
+    public void removePlayerFromPlayersLeftInCombat(Player player){
+        String playerA = player.getUniqueId().toString();
+        for(playersLeftInCombat.toFirst(); playersLeftInCombat.hasAccess(); playersLeftInCombat.next()) {
+            String playerB = playersLeftInCombat.getContent().getUniqueId().toString();
+            if (playerA.equals(playerB))
+                playersLeftInCombat.remove();
+        }
+    }
+    public List<Player> getPlayersLeftInCombat(){
+        return playersLeftInCombat;
+    }
+    public boolean didPlayerLeaveInCombat(Player player){
+        for (playersLeftInCombat.toFirst(); playersLeftInCombat.hasAccess(); playersLeftInCombat.next()) {
+            String playerA = player.getUniqueId().toString();
+            String playerB = playersLeftInCombat.getContent().getUniqueId().toString();
+            if (playerA.equals(playerB))
+                return true;
+        }
+        return false;
+    }
+    public void handlePlayerQuit(Player player){
+        if(playerIsInCombat(player)){
+            player.setHealth(0);
+            removePlayerFromCombat(player);
+            addPlayerToPlayersLeftInCombat(player);
+        }
+    }
+    public void judgePlayerQuit(Player player) {
+        if (didPlayerLeaveInCombat(player)) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "You were killed because you left while in combat"));
+            removePlayerFromPlayersLeftInCombat(player);
+        }
     }
 }

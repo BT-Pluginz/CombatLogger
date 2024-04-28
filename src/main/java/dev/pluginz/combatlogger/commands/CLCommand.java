@@ -26,13 +26,16 @@ package dev.pluginz.combatlogger.commands;
 
 import dev.pluginz.combatlogger.managers.CombatManager;
 import dev.pluginz.combatlogger.CombatLoggerPlugin;
+import dev.pluginz.combatlogger.utils.List;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.io.IOException;
+
 
 public class CLCommand implements CommandExecutor {
 
@@ -46,164 +49,176 @@ public class CLCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            sendHelp(sender);
-            return true;
-        }
-
-        if (args.length < 1) {
-            sendUsageMessage(sender, label);
+        if (args.length == 0 || args[0].equalsIgnoreCase("reload")) {
+            reloadPlugin(sender);
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "list":
-                //listPlayersInCombat(sender);
+                listPlayersInCombat(sender);
                 return true;
             case "settimer":
                 setCombatTimer(sender, args);
                 return true;
             case "start":
+                startCombat(sender, args);
+                return true;
             case "stop":
-                handleCombat(sender, args, label);
+                stopCombat(sender, args);
                 return true;
             case "ally":
-            handleAlly(sender, args);
-            return true;
+                handleAlly(sender, args);
+                return true;
             default:
-                sendUsageMessage(sender, label);
+                sendHelp(sender);
                 return true;
         }
     }
 
-    private void handleCombat(CommandSender sender, String[] args, String label) {
-        if (args.length < 2) {
-            sendUsageMessage(sender, label);
-            return;
-        }
-
-        Player target = Bukkit.getPlayer(args[1]);
-        if (target == null || !target.isOnline()) {
-            sender.sendMessage("Player not found or not online.");
-            return;
-        }
-
-        if (args[0].equalsIgnoreCase("start")) {
-            startCombat(sender, target);
-        } else if (args[0].equalsIgnoreCase("stop")) {
-            stopCombat(sender, target);
+    private void reloadPlugin(CommandSender sender) {
+        if (sender.hasPermission("combatlogger.relaod")) {
+            plugin.getConfigManager().reloadConfig();
+            plugin.getAllyManager().reloadAllys();
+            sender.sendMessage(plugin.getPluginPrefix() + ChatColor.GREEN + "Reloaded config and Allys successfully");
         }
     }
 
-    private void startCombat(CommandSender sender, Player target) {
+    private void startCombat(CommandSender sender, String[] args) {
         if (sender.hasPermission("combatlogger.start")) {
-            //combatManager.handlePlayerHit(target);
-            sender.sendMessage("Combat started for " + target.getName() + ".");
+            Player target = Bukkit.getPlayerExact(args[1]);
+            combatManager.addPlayerToCombat(target);
+            sender.sendMessage(plugin.getPluginPrefix() + "Combat started for " + target.getName() + ".");
         } else {
-            sender.sendMessage("You don't have permission to start combat.");
+            sender.sendMessage(plugin.getPluginPrefix() + ChatColor.RED + "You don't have permission to start combat.");
         }
     }
 
-    private void stopCombat(CommandSender sender, Player target) {
+    private void stopCombat(CommandSender sender, String[] args) {
         if (sender.hasPermission("combatlogger.stop")) {
-            //combatManager.stopCombatTimer(target);
-            sender.sendMessage("Combat stopped for " + target.getName() + ".");
+            Player target = Bukkit.getPlayerExact(args[1]);
+            combatManager.removePlayerFromCombat(target);
+            sender.sendMessage(plugin.getPluginPrefix() + "Combat stopped for " + target.getName() + ".");
         } else {
-            sender.sendMessage("You don't have permission to stop combat.");
+            sender.sendMessage(plugin.getPluginPrefix() + ChatColor.RED +  "You don't have permission to stop combat.");
         }
     }
-/*
+
     private void listPlayersInCombat(CommandSender sender) {
         if (sender.hasPermission("combatlogger.list")) {
-            //List<String> playersInCombat = combatManager.getPlayersInCombat();
-            sender.sendMessage("Players currently in combat:");
-            for (String playerName : playersInCombat) {
-                sender.sendMessage(playerName);
+            List<Player> playersInCombat = combatManager.getPlayersInCombat();
+            if (playersInCombat.isEmpty()){
+                sender.sendMessage(plugin.getPluginPrefix() + "There are currently no players in Combat");
+                return;
+            }
+            sender.sendMessage(plugin.getPluginPrefix() + "Players currently in combat:");
+            for (playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next()) {
+                sender.sendMessage(String.valueOf(playersInCombat.getContent().getName()));
             }
         } else {
-            sender.sendMessage("You don't have permission to list players in combat.");
+            sender.sendMessage(plugin.getPluginPrefix() + ChatColor.RED + "You don't have permission to list players in combat.");
         }
     }
-    */
-
 
     private void setCombatTimer(CommandSender sender, String[] args) {
         if (!sender.hasPermission("combatlogger.settimer")) {
-            sender.sendMessage("You don't have permission to set the combat timer.");
+            sender.sendMessage(plugin.getPluginPrefix() + ChatColor.RED + "You don't have permission to set the combat timer.");
             return;
         }
 
         if (args.length == 1) {
-            int currentTimer = plugin.getConfig().getInt("combatTimeoutInSeconds");
-            sender.sendMessage("Current combat timer: " + currentTimer + " seconds.");
+            int currentTimer = plugin.getConfigManager().getCombatTimeout();
+            sender.sendMessage(plugin.getPluginPrefix() + "Current combat timer: " + currentTimer + " seconds.");
         } else if (args.length == 2) {
             try {
                 int newTimer = Integer.parseInt(args[1]);
                 if (newTimer <= 0) {
-                    sender.sendMessage("Invalid timer value. Timer must be a positive integer.");
+                    sender.sendMessage(plugin.getPluginPrefix() + "Invalid timer value. Timer must be a positive integer.");
                     return;
                 }
-                plugin.getConfig().set("combatTimeoutInSeconds", newTimer);
-                plugin.saveConfig();
-                sender.sendMessage("Combat timer set to " + newTimer + " seconds.");
+                plugin.getConfigManager().setCombatTimeout(newTimer);
+                sender.sendMessage(plugin.getPluginPrefix() + "Combat timer set to " + newTimer + " seconds.");
             } catch (NumberFormatException e) {
-                sender.sendMessage("Invalid timer value. Timer must be a positive integer.");
+                sender.sendMessage(plugin.getPluginPrefix() + "Invalid timer value. Timer must be a positive integer.");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         } else {
-            sender.sendMessage("Usage: /cl setTimer [seconds]");
+            sender.sendMessage(plugin.getPluginPrefix() + "Usage: /cl setTimer [seconds]");
         }
     }
 
     private void handleAlly(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Only players can use this command.");
+            sender.sendMessage(plugin.getPluginPrefix() + "Only players can use this command.");
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cl ally <add|remove|accept|deny> <player>");
+            sender.sendMessage(plugin.getPluginPrefix() +  "Usage: /cl ally <add|remove <player>");
             return;
         }
         Player player1 = (Player) sender;
         Player player2 = Bukkit.getPlayerExact(args[2]);
         if (player2 == null || !player2.isOnline()) {
-            sender.sendMessage("Player not found or not online.");
+            sender.sendMessage(plugin.getPluginPrefix() + "Player not found or not online.");
             return;
         }
         switch (args[1].toLowerCase()) {
             case "add":
-                plugin.getAllyManager().sendAllyRequest(player1, player2);
-                break;
+                if (!plugin.getAllyManager().areAllies(player1, player2)) {
+                    plugin.getAllyManager().sendAllyRequest(player1, player2);
+                    player2.sendMessage(plugin.getPluginPrefix() + "You have 30 seconds to accept the request");
+                    sender.sendMessage(plugin.getPluginPrefix() + "Send ally request to " + player2.getName());
+                    break;
+                } else {
+                    sender.sendMessage(plugin.getPluginPrefix() + "You are already allies with " + player2.getName() + ".");
+                    break;
+                }
             case "remove":
                 plugin.getAllyManager().removeAlly(player1, player2);
-                sender.sendMessage("Removed " + player2.getName() + " as an ally.");
+                sender.sendMessage(plugin.getPluginPrefix() + "Removed " + player2.getName() + " as an ally.");
+                player2.sendMessage(plugin.getPluginPrefix() + player1.getName() + " has removed you as an ally.");
                 break;
             case "accept":
-                plugin.getAllyManager().addAlly(player1, player2);
-                player1.sendMessage("You have accepted the ally request from " + player2.getName() + ".");
-                player2.sendMessage(player1.getName() + " has accepted your ally request.");
+                if (plugin.getAllyManager().hasAllyRequest(player2, player1)) {
+                    plugin.getAllyManager().addAlly(player1, player2);
+                    player1.sendMessage(plugin.getPluginPrefix() + "You have accepted the ally request from " + player2.getName() + ".");
+                    player2.sendMessage(plugin.getPluginPrefix() + player1.getName() + " has accepted your ally request.");
+                } else {
+                    sender.sendMessage(plugin.getPluginPrefix() + "There is no active ally request from " + player2.getName() + ".");
+                }
                 break;
             case "deny":
-                sender.sendMessage("You have denied the ally request from " + player2.getName() + ".");
-                player2.sendMessage(player1.getName() + " has denied your ally request.");
+                sender.sendMessage(plugin.getPluginPrefix() + "You have denied the ally request from " + player2.getName() + ".");
+                player2.sendMessage(plugin.getPluginPrefix() + player1.getName() + " has denied your ally request.");
                 break;
             default:
-                sender.sendMessage("Invalid command. Usage: /cl ally <add|remove|accept|deny> <player>");
+                sender.sendMessage(plugin.getPluginPrefix() + "Invalid command. Usage: /cl ally <add|remove <player>");
         }
     }
     private void sendHelp(CommandSender sender) {
-        if (sender.hasPermission("combatlogger.start") || sender.hasPermission("combatlogger.stop") || sender.hasPermission("combatlogger.list") || sender.hasPermission("combatlogger.settimer")) {
+        plugin.sendPluginMessages(sender,"title");
+        if (sender.hasPermission("combatlogger.start") || sender.hasPermission("combatlogger.stop") || sender.hasPermission("combatlogger.list") || sender.hasPermission("combatlogger.settimer") || sender.hasPermission("combatlogger.ally")) {
             sender.sendMessage("CombatLogger Commands:");
-            sender.sendMessage("/cl start <player> - Start combat for the specified player.");
-            sender.sendMessage("/cl stop <player> - Stop combat for the specified player.");
-            sender.sendMessage("/cl list - List all players currently in combat.");
-            sender.sendMessage("/cl setTimer [seconds] - Set the combat timer.");
-            sender.sendMessage("/cl help - Show this help message.");
+            if (sender.hasPermission("combatlogger.start")) {
+                sender.sendMessage("/cl start <player> - Start combat for the specified player.");
+            }
+            if (sender.hasPermission("combatlogger.stop")) {
+                sender.sendMessage("/cl stop <player> - Stop combat for the specified player.");
+            }
+            if (sender.hasPermission("combatlogger.list")){
+                sender.sendMessage("/cl list - List all players currently in combat.");
+            }
+            if (sender.hasPermission("combatlogger.settimer")) {
+                sender.sendMessage("/cl setTimer [seconds] - Set the combat timer.");
+            }
+            if (sender.hasPermission("combatlogger.ally")){
+                sender.sendMessage("/cl ally <add|remove <player>");
+            }
+            sender.sendMessage("/cl help - Show this message.");
+            plugin.sendPluginMessages(sender, "line");
         } else {
-            sender.sendMessage("You don't have permission to use any CombatLogger commands.");
+            sender.sendMessage(plugin.getPluginPrefix() + ChatColor.RED +  "You don't have permission to use any CombatLogger commands.");
         }
-    }
-
-    private void sendUsageMessage(CommandSender sender, String label) {
-        sender.sendMessage("Invalid command. Usage: /" + label + " <start|stop|list|help|setTimer> [player]");
     }
 }
