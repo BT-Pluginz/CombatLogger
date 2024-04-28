@@ -30,20 +30,9 @@ import dev.pluginz.combatlogger.utils.List;
 import dev.pluginz.combatlogger.CombatLoggerPlugin;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class CombatManager {
     private List <Player> playersInCombat, playersLeftInCombat;
