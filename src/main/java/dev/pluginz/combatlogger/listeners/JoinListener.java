@@ -2,23 +2,25 @@ package dev.pluginz.combatlogger.listeners;
 
 import dev.pluginz.combatlogger.CombatLoggerPlugin;
 import dev.pluginz.combatlogger.managers.CombatManager;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public class QuitListener implements Listener {
+public class JoinListener implements Listener {
     private final CombatLoggerPlugin plugin;
-    private CombatManager combatManager;
+    private final CombatManager combatManager;
 
-    public QuitListener(CombatLoggerPlugin plugin) {
+    public JoinListener(CombatLoggerPlugin plugin) {
         this.plugin = plugin;
         this.combatManager = plugin.getCombatManager();
     }
-
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onJoin(PlayerJoinEvent event){
         Player player = event.getPlayer();
-        combatManager.handlePlayerQuit(player);
+        event.setJoinMessage(ChatColor.GREEN.toString() + player.getName() + " joined the server.");
+        combatManager.judgePlayerQuit(player);
     }
+
 }

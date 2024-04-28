@@ -28,10 +28,15 @@ import dev.pluginz.combatlogger.timer.CombatTimer;
 import dev.pluginz.combatlogger.utils.List;
 
 import dev.pluginz.combatlogger.CombatLoggerPlugin;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -41,7 +46,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class CombatManager {
-    private List <Player> playersInCombat;
+    private List <Player> playersInCombat, playersLeftInCombat;
     private HashMap<Player, CombatTimer> playerCombatTimerHashMap;
     private int combatTimeoutInSeconds;
     private CombatLoggerPlugin plugin;
@@ -50,8 +55,10 @@ public class CombatManager {
     public CombatManager(CombatLoggerPlugin plugin) {
         this.playerCombatTimerHashMap = new HashMap<>();
         this.playersInCombat = new List<>();
+        this.playersLeftInCombat = new List<>();
         this.plugin = plugin;
         this.configManager = plugin.getConfigManager();
+
     }
     public List <Player> getPlayersInCombat(){
         return playersInCombat;
@@ -81,5 +88,59 @@ public class CombatManager {
         if(playerIsInCombat(player))
             return playerCombatTimerHashMap.get(player).getTimeInSeconds();
         return -1;
+    }
+    public void addPlayerToPlayersLeftInCombat(Player player){
+        playersLeftInCombat.append(player);
+    }
+    public void removePlayerFromPlayersLeftInCombat(Player player){
+        String playerA = player.getUniqueId().toString();
+            for(playersLeftInCombat.toFirst(); playersLeftInCombat.hasAccess(); playersLeftInCombat.next()) {
+                String playerB = playersLeftInCombat.getContent().getUniqueId().toString();
+                if (playerA.equals(playerB)) {
+                    playersLeftInCombat.remove();
+                    System.out.println("Player removed from playersLeftInCombat list");
+                }
+                System.out.println("Player to remove: " + playerA);
+                System.out.println("Selected Player: " + playerB);
+            }
+        System.out.println("Test");
+    }
+    public List<Player> getPlayersLeftInCombat(){
+        return playersLeftInCombat;
+    }
+    public boolean didPlayerLeaveInCombat(Player player){
+        for (playersLeftInCombat.toFirst(); playersLeftInCombat.hasAccess(); playersLeftInCombat.next()) {
+            System.out.println(player.getUniqueId());
+            System.out.println(playersLeftInCombat.getContent().getUniqueId());
+            System.out.println(playersLeftInCombat.getContent().getUniqueId());
+            String playerA = player.getUniqueId().toString();
+            String playerB = playersLeftInCombat.getContent().getUniqueId().toString();
+            if (playerA.equals(playerB)) {
+                return true;
+            }else{
+                System.out.println(player.getUniqueId() + " == " + playersLeftInCombat.getContent().getUniqueId());
+            }
+        }
+        return false;
+    }
+    public void handlePlayerQuit(Player player){
+        if(playerIsInCombat(player)){
+            removePlayerFromCombat(player);
+            addPlayerToPlayersLeftInCombat(player);
+        }
+    }
+    public void judgePlayerQuit(Player player) {
+        if (didPlayerLeaveInCombat(player)) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "You left during combat"));
+            removePlayerFromPlayersLeftInCombat(player);
+            System.out.println("Is True");
+            printList(getPlayersLeftInCombat());
+        }
+    }
+    public void printList(List list){
+        for(list.toFirst(); list.hasAccess(); list.next()){
+            System.out.println(list.getContent());
+            System.out.println("Is in the list");
+        }
     }
 }

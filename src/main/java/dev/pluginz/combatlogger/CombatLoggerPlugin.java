@@ -26,8 +26,8 @@ package dev.pluginz.combatlogger;
 
 import dev.pluginz.combatlogger.commands.CLCommand;
 import dev.pluginz.combatlogger.commands.CLTabCompleter;
-import dev.pluginz.combatlogger.listeners.DeathListener;
 import dev.pluginz.combatlogger.listeners.HitListener;
+import dev.pluginz.combatlogger.listeners.JoinListener;
 import dev.pluginz.combatlogger.listeners.QuitListener;
 import dev.pluginz.combatlogger.managers.AllyManager;
 import dev.pluginz.combatlogger.managers.CombatManager;
@@ -75,9 +75,9 @@ public class CombatLoggerPlugin extends JavaPlugin {
         }
         this.allyManager = new AllyManager(this,allyFile);
 
-        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         getServer().getPluginManager().registerEvents(new HitListener(this), this);
         getServer().getPluginManager().registerEvents(new QuitListener(this), this);
+        getServer().getPluginManager().registerEvents(new JoinListener(this), this);
 
         getCommand("combatlogger").setExecutor(new CLCommand(combatManager,this));
         getCommand("combatlogger").setTabCompleter(new CLTabCompleter(this));
