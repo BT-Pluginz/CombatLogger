@@ -61,10 +61,12 @@ public class CombatManager {
         }
     }
     public void removePlayerFromCombat(Player player){
-        for(playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next())
-            if(player == playersInCombat.getContent())
+        String playerA = player.getUniqueId().toString();
+        for(playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next()) {
+            String playerB = playersInCombat.getContent().getUniqueId().toString();
+            if (playerA.equals(playerB))
                 playersInCombat.remove();
-        playerCombatTimerHashMap.remove(player);
+        }
     }
     public boolean playerIsInCombat(Player player){
         for(playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next())
