@@ -7,7 +7,7 @@ main: dev.pluginz.combatlogger.CombatLoggerPlugin
 commands:
   combatlogger:
     description: Main command for CombatLogger plugin
-    usage: /combatlogger <start|stop|list|help> [player]
+    usage: /combatlogger help
     aliases: [cl]
 
 permissions:
@@ -23,3 +23,9 @@ permissions:
   combatlogger.settimer:
     description: Allows players to set the combat timer
     default: op
+  combatlogger.reload:
+    description: Allows Players to reload the config and allys
+    default: op
+  combatlogger.ally:
+    description: Allows players to ally with other players
+    default: true

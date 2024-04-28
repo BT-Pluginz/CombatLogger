@@ -26,6 +26,7 @@ package dev.pluginz.combatlogger;
 
 import dev.pluginz.combatlogger.commands.CLCommand;
 import dev.pluginz.combatlogger.commands.CLTabCompleter;
+import dev.pluginz.combatlogger.listeners.DeathListener;
 import dev.pluginz.combatlogger.listeners.HitListener;
 import dev.pluginz.combatlogger.listeners.JoinListener;
 import dev.pluginz.combatlogger.listeners.QuitListener;
@@ -34,6 +35,9 @@ import dev.pluginz.combatlogger.managers.CombatManager;
 import dev.pluginz.combatlogger.managers.ConfigManager;
 import dev.pluginz.combatlogger.utils.VersionChecker;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -78,6 +82,7 @@ public class CombatLoggerPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HitListener(this), this);
         getServer().getPluginManager().registerEvents(new QuitListener(this), this);
         getServer().getPluginManager().registerEvents(new JoinListener(this), this);
+        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
 
         getCommand("combatlogger").setExecutor(new CLCommand(combatManager,this));
         getCommand("combatlogger").setTabCompleter(new CLTabCompleter(this));
@@ -94,9 +99,23 @@ public class CombatLoggerPlugin extends JavaPlugin {
     public AllyManager getAllyManager() {
         return allyManager;
     }
+    public void sendPluginMessages(CommandSender sender, String type) {
+    if ("title".equals(type)) {
+        sender.sendMessage(ChatColor.DARK_RED + "◢◤" + ChatColor.RED + "BT" + ChatColor.DARK_RED + "'"+ ChatColor.RED + "s" + ChatColor.DARK_PURPLE + " CombatLogger" + ChatColor.DARK_RED + "◥◣");
+    } else if ("line".equals(type)) {
+        sender.sendMessage(ChatColor.DARK_RED + "-" + ChatColor.RED + "-" + ChatColor.GOLD + "-" + ChatColor.YELLOW + "-" + ChatColor.LIGHT_PURPLE + "-" + ChatColor.DARK_PURPLE + "-"
+            + ChatColor.DARK_RED + "-" + ChatColor.RED + "-" + ChatColor.GOLD + "-" + ChatColor.YELLOW + "-" + ChatColor.LIGHT_PURPLE + "-" + ChatColor.DARK_PURPLE + "-"
+            + ChatColor.DARK_RED + "-" + ChatColor.RED + "-" + ChatColor.GOLD + "-" + ChatColor.YELLOW + "-" + ChatColor.LIGHT_PURPLE + "-" + ChatColor.DARK_PURPLE + "-"
+            + ChatColor.DARK_RED + "-");
+    }
+}
+    public String getPluginPrefix() {
+        return ChatColor.WHITE + "[" + ChatColor.RED + "BTCL" + ChatColor.WHITE + "] ";
+    }
 
     @Override
     public void onDisable() {
         configManager.saveConfig();
+        this.getLogger().warning("If this is a reload please note that this could break the Plugin");
     }
 }

@@ -34,12 +34,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class CombatTimer extends Timer{
-    private final ConfigManager configManager;
     private final CombatManager combatManager;
     private final Player player;
     public CombatTimer(boolean running, int timeInSeconds, CombatLoggerPlugin plugin, Player player) {
         super(running, timeInSeconds, plugin);
-        this.configManager = plugin.getConfigManager();
         this.combatManager = plugin.getCombatManager();
         this.player = player;
         this.sendActionBar();

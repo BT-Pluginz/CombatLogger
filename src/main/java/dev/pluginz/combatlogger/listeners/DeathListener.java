@@ -24,24 +24,21 @@
 package dev.pluginz.combatlogger.listeners;
 
 import dev.pluginz.combatlogger.CombatLoggerPlugin;
-import dev.pluginz.combatlogger.managers.CombatManager;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
-public class QuitListener implements Listener {
+import java.util.Objects;
+
+public class DeathListener implements Listener {
     private final CombatLoggerPlugin plugin;
-    private CombatManager combatManager;
-
-    public QuitListener(CombatLoggerPlugin plugin) {
+    public DeathListener(CombatLoggerPlugin plugin){
         this.plugin = plugin;
-        this.combatManager = plugin.getCombatManager();
     }
-
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        combatManager.handlePlayerQuit(player);
+    public void onPlayerQuit(PlayerDeathEvent event) {
+        if (Objects.equals(event.getDeathMessage(), event.getEntity().getPlayer().getName() + " died")){
+            event.setDeathMessage(event.getEntity().getPlayer().getName() + " died because he left during combat");
+        }
     }
 }

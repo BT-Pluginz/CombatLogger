@@ -77,12 +77,13 @@ public class ConfigManager {
     public int getCombatTimeout(){
         return combatTimeout;
     }
-    public void setCombatTimeout(int combatTimeout){
+    public void setCombatTimeout(int combatTimeout) throws IOException {
         if (this.combatTimeout == combatTimeout){
             return;
         }else {
             this.combatTimeout = combatTimeout;
             config.set("combatTimeout", combatTimeout);
+            config.save();
         }
     }
 
