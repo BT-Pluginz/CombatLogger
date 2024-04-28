@@ -20,14 +20,14 @@ public class HitListener implements Listener {
     public void onPlayerHit(EntityDamageByEntityEvent event) {
         Player damager = null, damaged = null;
         if (event.getEntity() instanceof Player) {
-             damaged = (Player) event.getEntity();
+            damaged = (Player) event.getEntity();
             if (event.getDamager() instanceof Projectile){
                 if(((Projectile) event.getDamager()).getShooter() instanceof Player)
                     damager = (Player) ((Projectile) event.getDamager()).getShooter();
             } else if (event.getDamager() instanceof Player) {
                 damager = (Player) event.getDamager();
             }
-            if (!plugin.getAllyManager().areAllies(damager, damaged) && opponentsArePlayers(damager, damaged) && !hitSelf(damager, damaged)) {
+            if (!plugin.getAllyManager().areAllies(damager, damaged) && null != damager && null != damaged && damager != damaged) {
 
                 combatManager.addPlayerToCombat(damager);
                 combatManager.addPlayerToCombat(damaged);
@@ -35,11 +35,5 @@ public class HitListener implements Listener {
 
 
         }
-    }
-    private boolean hitSelf(Player damager, Player damaged){
-        return damager == damaged;
-    }
-    private boolean opponentsArePlayers(Player damager, Player damaged){
-        return null != damager && null != damaged;
     }
 }

@@ -37,7 +37,6 @@ import java.util.HashMap;
 public class CombatManager {
     private List <Player> playersInCombat, playersLeftInCombat;
     private HashMap<Player, CombatTimer> playerCombatTimerHashMap;
-    private int combatTimeoutInSeconds;
     private CombatLoggerPlugin plugin;
     private final ConfigManager configManager;
 
