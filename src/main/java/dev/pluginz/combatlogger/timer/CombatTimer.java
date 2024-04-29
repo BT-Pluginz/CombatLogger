@@ -32,19 +32,23 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class CombatTimer extends Timer{
     private final CombatManager combatManager;
     private final Player player;
+    private BukkitTask currentTask;
+
     public CombatTimer(boolean running, int timeInSeconds, CombatLoggerPlugin plugin, Player player) {
         super(running, timeInSeconds, plugin);
         this.combatManager = plugin.getCombatManager();
         this.player = player;
         this.sendActionBar();
+
     }
     @Override
     public void run(){
-        new BukkitRunnable() {
+        currentTask = new BukkitRunnable() {
             @Override
             public void run() {
 
@@ -54,6 +58,12 @@ public class CombatTimer extends Timer{
                 setTimeInSeconds(getTimeInSeconds() - 1);
             }
         }.runTaskTimer(plugin, 20, 20);
+    }
+    public void cancel() {
+        if (currentTask != null) {
+            currentTask.cancel();
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "You are no longer in combat"));
+        }
     }
     public void sendActionBar(){
         if(isRunning() && 0 == getTimeInSeconds()) {
