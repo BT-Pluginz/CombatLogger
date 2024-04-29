@@ -64,8 +64,14 @@ public class CombatManager {
         String playerA = player.getUniqueId().toString();
         for(playersInCombat.toFirst(); playersInCombat.hasAccess(); playersInCombat.next()) {
             String playerB = playersInCombat.getContent().getUniqueId().toString();
-            if (playerA.equals(playerB))
+            if (playerA.equals(playerB)) {
                 playersInCombat.remove();
+                CombatTimer timer = playerCombatTimerHashMap.get(player);
+                if (timer != null) {
+                    timer.cancel();  // Cancel the timer
+                }
+                playerCombatTimerHashMap.remove(player);
+            }
         }
     }
     public boolean playerIsInCombat(Player player){
