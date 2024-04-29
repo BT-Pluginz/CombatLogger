@@ -1,0 +1,47 @@
+name: TestMC
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master", "Version*" ]
+
+jobs:
+
+  # ...
+  test-server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+   
+    # All Versions from 1.13.2 to 1.20.4
+    strategy:
+      matrix:
+        version: [1.16.5, 1.15.2, 1.14.4, 1.13.2]
+        java-version: [8]
+        include:
+          - version: 1.17.1
+            java-version: 16
+          - version: 1.18.2
+            java-version: 17
+          - version: 1.19.4
+            java-version: 17
+          - version: 1.20.4
+            java-version: 17
+
+    name: Test Plugin on MC ${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Build Plugin
+        run: ./gradlew clean assemble
+      - name: Test Plugin - ${{ matrix.version }}
+        uses: GamerCoder215/TestMC@v1.0.0
+        with:
+          path: 'target/*CombatLogger-*.jar'
+          runtime: 'paper'
+          version: ${{ matrix.version }}
