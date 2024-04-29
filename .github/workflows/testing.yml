@@ -37,11 +37,27 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
           cache: 'maven'
+          
       - name: Build Plugin
-        run: mvn clean package
+        run: mvn -B package --file pom.xml
+        
+      - name: List contents of target directory
+        run: ls target
+        
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: CombatLogger
+          path: target/*CombatLogger-*.jar
+
+      - name: Download compiled JAR
+        uses: actions/download-artifact@v2
+        with:
+          name: CombatLogger
+        
       - name: Test Plugin - ${{ matrix.version }}
         uses: GamerCoder215/TestMC@v1.0.0
         with:
-          path: 'target/*CombatLogger-*.jar'
+          path: './CombatLogger/*CombatLogger-*.jar'
           runtime: 'paper'
           version: ${{ matrix.version }}
