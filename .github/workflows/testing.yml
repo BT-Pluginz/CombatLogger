@@ -58,6 +58,6 @@ jobs:
       - name: Test Plugin - ${{ matrix.version }}
         uses: GamerCoder215/TestMC@v1.0.0
         with:
-          path: './CombatLogger/*CombatLogger-*.jar'
+          path: 'target/CombatLogger-*.jar'
           runtime: 'paper'
           version: ${{ matrix.version }}
