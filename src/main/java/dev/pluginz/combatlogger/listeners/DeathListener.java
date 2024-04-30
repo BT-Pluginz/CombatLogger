@@ -36,9 +36,10 @@ public class DeathListener implements Listener {
         this.plugin = plugin;
     }
     @EventHandler
-    public void onPlayerQuit(PlayerDeathEvent event) {
+    public void onPlayerDeath(PlayerDeathEvent event) {
         if (Objects.equals(event.getDeathMessage(), event.getEntity().getPlayer().getName() + " died")){
             event.setDeathMessage(event.getEntity().getPlayer().getName() + " died because he left during combat");
         }
+        plugin.getCombatManager().removePlayerFromCombat(event.getEntity().getPlayer());
     }
 }

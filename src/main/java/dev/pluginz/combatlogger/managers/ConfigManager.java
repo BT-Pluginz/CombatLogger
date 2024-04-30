@@ -60,7 +60,8 @@ public class ConfigManager {
             combatTimeout = config.getInt("combatTimeout", 30);
             checkVersion = config.getBoolean("checkVersion", true);
         } catch (IOException e) {
-            plugin.getLogger().severe("Could not load configuration: " + e.getMessage());
+            //plugin.getLogger().severe("Could not load configuration: " + e.getMessage());
+            plugin.getLogger().severe("Error while loading the configuration");
         }
     }
 
@@ -68,7 +69,7 @@ public class ConfigManager {
         try {
             config.save();
         } catch (IOException e) {
-            plugin.getLogger().severe("Could not save configuration: " + e.getMessage());
+            plugin.getLogger().severe("Error while saving the configuration");
         }
     }
     public void reloadConfig() {
