@@ -31,7 +31,8 @@ This Minecraft Plugin punishes people when they leave the Server while they are 
 - Ally with another Player, so when you hit each-other the Timer won't start `/cl ally` (requires Permission: `combatlogger.ally`, `default: player`)
   - `/cl ally add <player>` to add someone as an ally
   - `/cl ally remove <player>` to remove an ally
-- Help command `/cl help` displays all the commands a player has permission to use
+- List Plugin info's using `/cl info` (requires Permission: `combatlogger.info`, `default: player`)
+- Help command `/cl help` displays all the commands a player has permission to use (requires Permission: `combatlogger.help`, `default: player`)
 ## Permission 
 - `combatlogger.start`: Allows players to start combat for a specific player (`default: op`)
 - `combatlogger.stop`: Allows players to stop combat for a specific player (`default: op`)
@@ -39,6 +40,8 @@ This Minecraft Plugin punishes people when they leave the Server while they are 
 - `combatlogger.settimer`: Allows players to set the combat timer (`default: op`)
 - `combatlogger.reload`: Allows Players to reload the config and allys (`default: op`)
 - `combatlogger.ally`: Allows players to ally with other players (`default: player`)
+- `combatlogger.info`: Allows Players to use the info command (`default: player`)
+- `combatlogger.help`: Allows Players to use the help command (`default: player`)
 ## Installation 
 To install the plugin, simply download the latest release file and place it in your server's plugins folder. Then, restart your server.
 ## Support 
