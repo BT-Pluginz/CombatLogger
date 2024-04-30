@@ -2,9 +2,9 @@ name: TestMC
 
 on:
   push:
-    branches: [ "master", "Version*" ]
+    branches: [ "Version*" ]
   pull_request:
-    branches: [ "master", "Version*" ]
+    branches: [ "Version*" ]
 
 jobs:
 
