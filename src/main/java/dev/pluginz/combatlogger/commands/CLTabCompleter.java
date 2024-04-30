@@ -46,7 +46,7 @@ public class CLTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
-        List<String> commands = Arrays.asList("start", "stop", "list", "settimer", "ally", "reload");
+        List<String> commands = Arrays.asList("start", "stop", "list", "settimer", "ally", "reload", "help", "info");
 
         if (args.length == 1) {
             for (String cmd : commands) {

@@ -37,7 +37,6 @@ import dev.pluginz.combatlogger.utils.VersionChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -66,7 +65,9 @@ public class CombatLoggerPlugin extends JavaPlugin {
         this.combatManager = new CombatManager(this);
         if (configManager.isCheckVersion()) {
             newVersion = VersionChecker.isNewVersionAvailable(version);
-            this.getLogger().warning("There is a new Version available for BT's CombatLogger");
+            if (newVersion) {
+                this.getLogger().warning("There is a new Version available for BT's CombatLogger");
+            }
         }
 
         File allyFile = new File("plugins/CombatLogger/allies.yml");
@@ -86,7 +87,6 @@ public class CombatLoggerPlugin extends JavaPlugin {
 
         getCommand("combatlogger").setExecutor(new CLCommand(combatManager,this));
         getCommand("combatlogger").setTabCompleter(new CLTabCompleter(this));
-        //getCommand("combatLogger".setTabCompleter(new CLTabCompleter()), this);
     }
 
     public CombatManager getCombatManager() {
@@ -112,10 +112,20 @@ public class CombatLoggerPlugin extends JavaPlugin {
     public String getPluginPrefix() {
         return ChatColor.WHITE + "[" + ChatColor.RED + "BTCL" + ChatColor.WHITE + "] ";
     }
+    public String getVersion(){
+        return version;
+    }
+    public boolean isNewVersion(){
+        return newVersion;
+    }
 
     @Override
     public void onDisable() {
         configManager.saveConfig();
+        this.getLogger().info("-----");
+        this.getLogger().info(" ");
         this.getLogger().warning("If this is a reload please note that this could break the Plugin");
+        this.getLogger().info(" ");
+        this.getLogger().info("-----");
     }
 }

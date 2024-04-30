@@ -29,3 +29,9 @@ permissions:
   combatlogger.ally:
     description: Allows players to ally with other players
     default: true
+  combatlogger.help:
+    description: Allows Players to use the help command
+    default: true
+  combatlogger.info:
+    description: Allows Players to use the info command
+    default: true

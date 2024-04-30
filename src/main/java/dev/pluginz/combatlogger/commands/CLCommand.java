@@ -27,6 +27,8 @@ package dev.pluginz.combatlogger.commands;
 import dev.pluginz.combatlogger.managers.CombatManager;
 import dev.pluginz.combatlogger.CombatLoggerPlugin;
 import dev.pluginz.combatlogger.utils.List;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -49,8 +51,8 @@ public class CLCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 0 || args[0].equalsIgnoreCase("reload")) {
-            reloadPlugin(sender);
+        if (args.length == 0) {
+            sendHelp(sender);
             return true;
         }
 
@@ -69,6 +71,12 @@ public class CLCommand implements CommandExecutor {
                 return true;
             case "ally":
                 handleAlly(sender, args);
+                return true;
+            case "info":
+                infoCommand(sender);
+                return true;
+            case "reload":
+                reloadPlugin(sender);
                 return true;
             default:
                 sendHelp(sender);
@@ -196,6 +204,33 @@ public class CLCommand implements CommandExecutor {
                 sender.sendMessage(plugin.getPluginPrefix() + "Invalid command. Usage: /cl ally <add|remove <player>");
         }
     }
+    public void infoCommand(CommandSender sender) {
+        plugin.sendPluginMessages(sender, "title");
+        sender.sendMessage(ChatColor.GREEN + "Author: BTPluginz");
+        sender.sendMessage(ChatColor.GREEN + "Version: " + plugin.getVersion());
+        if (plugin.getConfigManager().isCheckVersion()) {
+            if (plugin.isNewVersion()) {
+                sender.sendMessage(ChatColor.YELLOW + "A new version is available! Update at: " + ChatColor.UNDERLINE + "https://modrinth.com/project/bts-combatlogger");
+            } else {
+                sender.sendMessage(ChatColor.GREEN + "You are using the latest version!");
+            }
+        } else {
+            sender.sendMessage("Version checking is disabled!");
+        }
+        TextComponent githubLink = new TextComponent(ChatColor.DARK_GRAY + "" + ChatColor.UNDERLINE + "GitHub");
+        githubLink.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/BT-Pluginz/CombatLogger"));
+        githubLink.setUnderlined(true);
+        sender.spigot().sendMessage(githubLink);
+
+        TextComponent discordLink = new TextComponent(ChatColor.BLUE + "" + ChatColor.UNDERLINE + "Discord");
+        discordLink.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.pluginz.dev"));
+        discordLink.setUnderlined(true);
+        sender.spigot().sendMessage(discordLink);
+
+        sender.sendMessage("If you have any issues please report them on GitHub or on the Discord.");
+        plugin.sendPluginMessages(sender,"line");
+
+    }
     private void sendHelp(CommandSender sender) {
         plugin.sendPluginMessages(sender,"title");
         if (sender.hasPermission("combatlogger.start") || sender.hasPermission("combatlogger.stop") || sender.hasPermission("combatlogger.list") || sender.hasPermission("combatlogger.settimer") || sender.hasPermission("combatlogger.ally")) {
@@ -215,6 +250,7 @@ public class CLCommand implements CommandExecutor {
             if (sender.hasPermission("combatlogger.ally")){
                 sender.sendMessage("/cl ally <add|remove <player>");
             }
+            sender.sendMessage("/cl info - Get Infos about the Plugin");
             sender.sendMessage("/cl help - Show this message.");
             plugin.sendPluginMessages(sender, "line");
         } else {
